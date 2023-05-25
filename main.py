@@ -3,7 +3,7 @@ import math
 import itertools
 
 # Settings
-maxStoresPerRoute = 3; #Maximum amount of stores per route
+maxStoresPerRoute = 2; #Maximum amount of stores per route
 maxCapacityperRoute = 100; #Maximum amount of capacity per route 
 
 # Read the Excel files
@@ -22,23 +22,47 @@ for i in range(lengthCoords):
 
 # Find all possible routes and their distances
 permutations = list(itertools.permutations(points, maxStoresPerRoute))
+storesOnRoute = pd.DataFrame(0, index = range(lengthCoords), columns=[])
 
-totalDistances = [None] * len(permutations)
-storesOnRoute = pd.DataFrame(0, index = range(lengthCoords), columns=range(len(permutations)))
+totalDistances = [0] * (len(permutations))
+routes = []
 
 for i in range(len(permutations)):
     perm = permutations[i]
     route = (0,) + perm + (0,)
     
     totalDistance = 0
+    storesOnRouteList = [0] * lengthCoords
+
+    # Calculate the total distance of the route
     for j in range(len(route) - 1):
         start = route[j]
         end = route[j + 1]
-        totalDistance = totalDistance + distances[start][end]
+        totalDistance += distances[start][end]
+        storesOnRouteList[start] = 1
 
-        storesOnRoute.loc[start][i] = 1
-    totalDistances[i] = totalDistance
+    # If the route already exists, check if this solution has a shorter distance
+    exists = False
+    for idx, existing_route in enumerate(routes):
+        if set(existing_route) == set(route):
+            exists = True
+            duplicate_index = idx 
 
-print(storesOnRoute)
+            if totalDistance < totalDistances[idx]:
+                totalDistances[i] = totalDistance
+            break
 
-# Compare routes
+    # If the route does not exist yet, add it to the results
+    if not exists:
+        storesOnRoute[i] = storesOnRouteList
+        totalDistances[i]= (totalDistance)
+        routes.append(route)
+
+# Trim storesOnRoute back to ordered columns 
+storesOnRoute = storesOnRoute.iloc[:, :(len(routes) + 1)]
+storesOnRoute.columns = range(1, len(storesOnRoute.columns) + 1)
+
+# Remove zero values for totalDistances
+totalDistances = [distance for distance in totalDistances if distance != 0]
+
+# Check if the route is feasable with the demand of the customers, save routes that are feasable
