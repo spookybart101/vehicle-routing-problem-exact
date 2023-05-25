@@ -27,6 +27,7 @@ storesOnRoute = pd.DataFrame(0, index = range(lengthCoords), columns=[])
 totalDistances = [0] * (len(permutations))
 routes = []
 
+# Compare the routes
 for i in range(len(permutations)):
     perm = permutations[i]
     route = (0,) + perm + (0,)
