@@ -20,50 +20,47 @@ for i in range(lengthCoords):
     for j in range(lengthCoords):
        distances[i][j] = (math.sqrt((coords.iloc[i][1] - coords.iloc[j][1])**2 + (coords.iloc[i][2] - coords.iloc[j][2])**2))
 
-# Find all possible routes and their distances
-permutations = list(itertools.permutations(points, maxStoresPerRoute))
-storesOnRoute = pd.DataFrame(0, index = range(lengthCoords), columns=[])
-
-totalDistances = [0] * (len(permutations))
+# Find all possible routes
 routes = []
+storesOnRoute = pd.DataFrame(0, index = range(lengthCoords), columns=[])
+combinations = list(itertools.combinations(points[1:], 1))
 
-# Compare the routes
-for i in range(len(permutations)):
-    perm = permutations[i]
-    route = (0,) + perm + (0,)
+storesOnRouteList = [0] * lengthCoords
+
+# Find every combination of possible routes, which satisfy the maxStoresPerRoute constraint 
+for i in range(maxStoresPerRoute + 1):
+    combinations = list(itertools.combinations(points[1:], i))
     
-    totalDistance = 0
-    storesOnRouteList = [0] * lengthCoords
+    for j in range(len(combinations)):
+        comb = combinations[j]
+        route = (0,) + comb + (0,)
 
-    # Calculate the total distance of the route
-    for j in range(len(route) - 1):
-        start = route[j]
-        end = route[j + 1]
-        totalDistance += distances[start][end]
-        storesOnRouteList[start] = 1
+        storesOnRouteList = [0] * lengthCoords
+        
+        # Find every store on the route, 1 if store is on the route, 0 if store is not on the route
+        for k in range(len(route) - 1):
+            start = route[k]
+            end = route[k + 1]
+            storesOnRouteList[start] = 1
 
-    # If the route already exists, check if this solution has a shorter distance
-    exists = False
-    for idx, existing_route in enumerate(routes):
-        if set(existing_route) == set(route):
-            exists = True
-            duplicate_index = idx 
+        column_name = f"{i}_{j}"
+        storesOnRoute[column_name] = storesOnRouteList
 
-            if totalDistance < totalDistances[idx]:
-                totalDistances[i] = totalDistance
-            break
-
-    # If the route does not exist yet, add it to the results
-    if not exists:
-        storesOnRoute[i] = storesOnRouteList
-        totalDistances[i]= (totalDistance)
         routes.append(route)
 
-# Trim storesOnRoute back to ordered columns 
-storesOnRoute = storesOnRoute.iloc[:, :(len(routes) + 1)]
-storesOnRoute.columns = range(1, len(storesOnRoute.columns) + 1)
+# Find feasable routes, which satisfy the demand constraint
+demandOnRoute = 0
+columns_to_drop = []
 
-# Remove zero values for totalDistances
-totalDistances = [distance for distance in totalDistances if distance != 0]
+for j, column in enumerate(storesOnRoute.columns):
+    for i, row in enumerate(storesOnRoute.index):
+        if storesOnRoute.loc[i][j] == 1:
+            demandOnRoute += demand.loc[row].item()
+    
+    # Remove routes that are not feasable    
+    if demandOnRoute > maxCapacityperRoute:
+        columns_to_drop.append(column)
+    
+    demandOnRoute = 0
 
-# Check if the route is feasable with the demand of the customers, save routes that are feasable
+storesOnRoute = storesOnRoute.drop(columns=columns_to_drop)
