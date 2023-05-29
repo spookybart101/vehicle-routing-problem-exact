@@ -3,8 +3,9 @@ import math
 import itertools
 
 # Settings
-maxStoresPerRoute = 2; #Maximum amount of stores per route
-maxCapacityperRoute = 100; #Maximum amount of capacity per route 
+maxStoresPerRoute = 4        #Maximum amount of stores per route
+maxCapacityperRoute = 100    #Maximum amount of capacity per route 
+cost = 1                     #Cost per distance
 
 # Read the Excel files
 coords = pd.read_excel(r'C:\Users\BartO\Desktop\SDVSP\coords.xlsx')
@@ -29,7 +30,9 @@ storesOnRouteList = [0] * lengthCoords
 
 # Find every combination of possible routes, which satisfy the maxStoresPerRoute constraint 
 for i in range(maxStoresPerRoute + 1):
-    combinations = list(itertools.combinations(points[1:], i))
+    combinations = list(itertools.combinations
+                        
+                        (points[1:], i))
     
     for j in range(len(combinations)):
         comb = combinations[j]
@@ -45,13 +48,13 @@ for i in range(maxStoresPerRoute + 1):
 
         column_name = f"{i}_{j}"
         storesOnRoute[column_name] = storesOnRouteList
-
         routes.append(route)
 
 # Find feasable routes, which satisfy the demand constraint
 demandOnRoute = 0
-columns_to_drop = []
 
+columns_to_drop = []
+routes_to_remove = []
 for j, column in enumerate(storesOnRoute.columns):
     for i, row in enumerate(storesOnRoute.index):
         if storesOnRoute.loc[i][j] == 1:
@@ -60,7 +63,49 @@ for j, column in enumerate(storesOnRoute.columns):
     # Remove routes that are not feasable    
     if demandOnRoute > maxCapacityperRoute:
         columns_to_drop.append(column)
-    
+        routes_to_remove.append(routes[j])
     demandOnRoute = 0
 
 storesOnRoute = storesOnRoute.drop(columns=columns_to_drop)
+
+for route in routes_to_remove:
+    routes.remove(route)
+
+# Compute minimal distance for each route
+def compute_distance(route):
+    total_distance = 0
+
+    for j in range(len(route) - 1):
+        start = route[j]
+        end = route[j + 1]
+        total_distance += distances[start][end]
+    return total_distance
+
+tempDistances = []
+totalDistances = []
+
+for route in routes:
+    start_end = route[1:-1]  # Extract the intermediate stops
+
+    permutations = list(itertools.permutations(start_end))
+
+
+    for perm in permutations:
+        perm_route = [0] + list(perm) + [0]  # Add the start and end points (0)
+        distance = compute_distance(perm_route)  # Replace `compute_distance` with your own distance calculation function
+        tempDistances.append(distance)
+
+    min_distance = min(tempDistances)
+    totalDistances.append(min_distance)
+    tempDistances = []
+
+# Compute costs per route
+costs = pd.DataFrame(columns=['Cost'])
+
+for i, totalDistance in enumerate(totalDistances):
+    cost_value = totalDistance * cost
+    costs.loc[i] = cost_value
+
+# Export Data
+storesOnRoute.to_excel(r'C:\Users\BartO\Desktop\SDVSP\output.xlsx', index=False)
+costs.to_excel(r'C:\Users\BartO\Desktop\SDVSP\costs_output.xlsx', index=False)
