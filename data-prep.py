@@ -8,11 +8,11 @@ maxCapacityperRoute = 100    #Maximum amount of capacity per route
 cost = 1                     #Cost per distance
 
 # Read the Excel files
-coords = pd.read_excel(r'C:\Users\BartO\Desktop\SDVSP\coords.xlsx')
+coords = pd.read_excel(x\coords.xlsx')
 points = coords["Points"]
 lengthCoords = len(coords)
 
-demand = pd.read_excel(r'C:\Users\BartO\Desktop\SDVSP\demand.xlsx')
+demand = pd.read_excel(x\demand.xlsx')
 
 # Compute distances
 distances = pd.DataFrame(index=range(lengthCoords), columns=range(lengthCoords))
@@ -115,5 +115,5 @@ for i, totalDistance in enumerate(totalDistances):
 
 # Export Data
 other_information = pd.DataFrame({'route' :fastest_perms,  'distance' :totalDistances, 'costs' : costs})
-storesOnRoute.to_excel(r'C:\Users\BartO\Desktop\SDVSP\output.xlsx', index=False)
-other_information.to_excel(r'C:\Users\BartO\Desktop\SDVSP\output_extra.xlsx', index=False)
+storesOnRoute.to_excel(x\output.xlsx', index=False)
+other_information.to_excel(x\output_extra.xlsx', index=False)
