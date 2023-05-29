@@ -24,8 +24,9 @@ def solve_vrp(routes, costs, maxVehicles):
         x[i] = model.NewBoolVar(f'x_{i}')
 
     # Constraints
-    for j in range(num_stores):
-        model.Add(sum(x[i] * routes.iloc[j, i] for i in range(num_routes)) >= 1)
+    # Every store gets visited once
+    for j in range(1, num_stores):
+        model.Add(sum(x[i] * routes.iloc[j, i] for i in range(num_routes)) == 1)
 
     # Make sure we do not use more than the maximum vehicles
     model.Add(sum(x[i] for i in range(num_routes)) <= maxVehicles)
