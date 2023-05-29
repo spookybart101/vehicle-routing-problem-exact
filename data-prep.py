@@ -3,7 +3,7 @@ import math
 import itertools
 
 # Settings
-maxStoresPerRoute = 4        #Maximum amount of stores per route
+maxStoresPerRoute = 3        #Maximum amount of stores per route
 maxCapacityperRoute = 100    #Maximum amount of capacity per route 
 cost = 1                     #Cost per distance
 
@@ -82,30 +82,38 @@ def compute_distance(route):
     return total_distance
 
 tempDistances = []
+tempName = []
 totalDistances = []
+fastest_perms = []
 
-for route in routes:
+for i, route in enumerate(routes):
     start_end = route[1:-1]  # Extract the intermediate stops
-
     permutations = list(itertools.permutations(start_end))
-
 
     for perm in permutations:
         perm_route = [0] + list(perm) + [0]  # Add the start and end points (0)
         distance = compute_distance(perm_route) 
         tempDistances.append(distance)
+        tempName.append(perm)
 
+    # Save the minimum distance of each permutation
     min_distance = min(tempDistances)
     totalDistances.append(min_distance)
+
+    min_distance_index = tempDistances.index(min_distance)
+    fastest_perms.append(str(tempName[min_distance_index]))
+
     tempDistances = []
+    tempName = []
 
 # Compute costs per route
-costs = pd.DataFrame(columns=['Cost'])
+costs = []
 
 for i, totalDistance in enumerate(totalDistances):
     cost_value = totalDistance * cost
-    costs.loc[i] = cost_value
+    costs.append(cost_value)
 
 # Export Data
+other_information = pd.DataFrame({'route' :fastest_perms,  'distance' :totalDistances, 'costs' : costs})
 storesOnRoute.to_excel(r'C:\Users\BartO\Desktop\SDVSP\output.xlsx', index=False)
-costs.to_excel(r'C:\Users\BartO\Desktop\SDVSP\costs_output.xlsx', index=False)
+other_information.to_excel(r'C:\Users\BartO\Desktop\SDVSP\output_extra.xlsx', index=False)
