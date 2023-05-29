@@ -92,7 +92,7 @@ for route in routes:
 
     for perm in permutations:
         perm_route = [0] + list(perm) + [0]  # Add the start and end points (0)
-        distance = compute_distance(perm_route)  # Replace `compute_distance` with your own distance calculation function
+        distance = compute_distance(perm_route) 
         tempDistances.append(distance)
 
     min_distance = min(tempDistances)
