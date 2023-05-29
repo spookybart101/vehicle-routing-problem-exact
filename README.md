@@ -4,7 +4,7 @@ This repository contains a solution for the Vehicle Routing Problem, which is a 
 
 ## Features
 
-- The solution considers constraints such as maximum capacity per vehicle and the maximum number of stores visited per route.
+- The program considers the three following constraints: maximum capacity per vehicle, the maximum number of stores visited per route and maximum amount of vehicles.
 - The constraints are incorporated in the generation of feasible routes.
 - You can adjust parameters such as costs per distance, maximum capacity, maximum stores per route, and the maximum number of vehicles in the respective files: `data-prep.py` and `solver.py`.
 
