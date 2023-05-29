@@ -3,12 +3,12 @@ from ortools.sat.python import cp_model
 import matplotlib.pyplot as plt
 
 # Load Data
-routes = pd.read_excel(r'C:\Users\BartO\Desktop\SDVSP\output.xlsx')
-extra_information = pd.read_excel(r'C:\Users\BartO\Desktop\SDVSP\output_extra.xlsx')
+routes = pd.read_excel(x\output.xlsx')
+extra_information = pd.read_excel(x\output_extra.xlsx')
 
 costs = extra_information[['costs']]
 distances = extra_information[['distance']]
-coords = pd.read_excel(r'C:\Users\BartO\Desktop\SDVSP\coords.xlsx')
+coords = pd.read_excel(x\coords.xlsx')
 
 stores = routes.iloc[:, 0].tolist()
 maxVehicles = 5
@@ -51,11 +51,8 @@ def solve_vrp(routes, costs, maxVehicles):
         optimal_vehicles = len(optimal_routes)
 
         return optimal_objective, optimal_routes, optimal_route_costs, optimal_route_distances, optimal_vehicles
-        
 
-    
     return 'inf', None, None, None
-
 
 # Start solver
 optimal_objective, optimal_routes, optimal_route_costs, optimal_route_distances, optimal_vehicles = solve_vrp(routes, costs, maxVehicles)
